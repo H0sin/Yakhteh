@@ -59,4 +59,13 @@ async def register_user(payload: UserCreate, db: AsyncSession = Depends(get_sess
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     user = await create_user(db, payload)
+
+    # Publish USER_CREATED event (best-effort)
+    try:
+        from app.core.messaging import publish_user_created
+        await publish_user_created(user_id=str(user.id), user_email=user.email, workspace_name=payload.workspace_name)
+    except Exception:
+        # Don't block registration on messaging failures
+        pass
+
     return user

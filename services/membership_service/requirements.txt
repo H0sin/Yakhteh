@@ -1,9 +1,6 @@
-fastapi==0.114.2
-uvicorn[standard]==0.30.6
 SQLAlchemy[asyncio]==2.0.35
 asyncpg==0.29.0
-alembic==1.13.2
 pydantic==2.9.2
 pydantic-settings==2.6.0
-python-jose[cryptography]==3.3.0
 redis==5.0.8
+

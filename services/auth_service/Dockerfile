@@ -10,7 +10,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip wheel --no-cache-dir --no-deps -r requirements.txt -w /wheels
+RUN pip install --upgrade pip && pip wheel --no-cache-dir -r requirements.txt -w /wheels
 
 # Runtime stage
 FROM python:3.12-slim AS runtime

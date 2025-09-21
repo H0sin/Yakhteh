@@ -7,26 +7,15 @@ Multi-tenant medical platform for doctors and clinics in Iran. This monorepo use
 - clinic_service: Clinic info, staff, subscriptions
 
 ## Quickstart (Local)
-1) Create and review .env (already provided with sample values)
-2) Build and start
+1. Fill in the .env file with your configuration.
+2. Run the platform:
 
 ```bash
-docker compose up -d --build
+docker compose up --build
 ```
 
-3) Run DB migrations inside containers (first time)
-
-```bash
-# Auth service
-docker compose exec auth_service alembic upgrade head
-
-# Clinic service
-docker compose exec clinic_service alembic upgrade head
-```
-
-4) Open docs
-- Auth service: http://localhost:8001/docs
-- Clinic service: http://localhost:8002/docs
+The entire platform, including the API server and background workers, is now running.
+- Auth service docs: http://localhost:8001/docs
 
 ## Endpoints (initial)
 Auth
@@ -46,3 +35,34 @@ Clinics (requires Bearer token)
 - UUID primary keys
 - Alembic migrations per service
 - CORS open for local dev
+
+## Testing
+Run the auth_service tests against a local PostgreSQL.
+
+- Start PostgreSQL (via docker-compose service):
+
+```bash
+docker compose up -d postgres_db
+```
+
+- Install dependencies and run tests (Windows PowerShell):
+
+```powershell
+cd services/auth_service
+python -m pip install -r requirements.txt -r requirements-dev.txt
+$env:TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/yakhteh_test"
+python -m pytest
+```
+
+- Install dependencies and run tests (bash/macOS/Linux):
+
+```bash
+cd services/auth_service
+python -m pip install -r requirements.txt -r requirements-dev.txt
+export TEST_DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/yakhteh_test"
+pytest
+```
+
+Notes:
+- Tests auto-create the yakhteh_test database and drop all tables after the run.
+- You can override the DB with TEST_DATABASE_URL (any async SQLAlchemy URL supported).

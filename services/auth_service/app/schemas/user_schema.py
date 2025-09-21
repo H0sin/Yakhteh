@@ -12,6 +12,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str = Field(min_length=8)
+    workspace_name: str = Field(min_length=1)
 
 
 class UserUpdate(BaseModel):

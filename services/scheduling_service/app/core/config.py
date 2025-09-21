@@ -7,7 +7,10 @@ class Settings(BaseSettings):
 
     environment: str = "local"
     database_url: str = "postgresql+asyncpg://postgres:postgres@postgres_db:5432/yakhteh"
-    redis_url: str = "redis://redis_cache:6379/0"
+
+    # JWT validation for protected endpoints
+    secret_key: str = "change_me_in_prod"
+    algorithm: str = "HS256"
 
 
 @lru_cache
@@ -16,3 +19,4 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
+

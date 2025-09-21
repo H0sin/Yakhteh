@@ -13,6 +13,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - yakhteh_net
 
@@ -22,6 +27,29 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - yakhteh_net
+
+  minio:
+    image: minio/minio:latest
+    container_name: yakhteh_minio
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: ["server", "/data", "--console-address", ":9001"]
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
     networks:
       - yakhteh_net
 
@@ -54,19 +82,84 @@ services:
     container_name: yakhteh_clinic_service
     restart: unless-stopped
     depends_on:
-      - postgres_db
-      - redis_cache
+      postgres_db:
+        condition: service_healthy
+      redis_cache:
+        condition: service_healthy
     env_file:
       - .env
     environment:
       DATABASE_URL: ${DATABASE_URL}
+    command: ["python", "-m", "app.worker"]
     ports:
       - "8002:8000"
     networks:
       - yakhteh_net
 
+  membership_service:
+    build:
+      context: ./services/membership_service
+      dockerfile: Dockerfile
+    container_name: yakhteh_membership_service
+    restart: unless-stopped
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      redis_cache:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    command: ["python", "-m", "app.worker"]
+    networks:
+      - yakhteh_net
+
+  scheduling_service:
+    build:
+      context: ./services/scheduling_service
+      dockerfile: Dockerfile
+    container_name: yakhteh_scheduling_service
+    restart: unless-stopped
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      redis_cache:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM}
+    ports:
+      - "8004:8000"
+    networks:
+      - yakhteh_net
+
+  pacs_service:
+    build:
+      context: ./services/pacs_service
+      dockerfile: Dockerfile
+    container_name: yakhteh_pacs_service
+    restart: unless-stopped
+    depends_on:
+      - postgres_db
+      - minio
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "8005:8000"
+    networks:
+      - yakhteh_net
+
 volumes:
   postgres_data:
+  minio_data:
 
 networks:
   yakhteh_net:
