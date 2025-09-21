@@ -1,9 +1,17 @@
 from __future__ import with_statement
 from logging.config import fileConfig
+import os
+import sys
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 config = context.config
+
+# Ensure the service root (containing the `app` package) is importable
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+SERVICE_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir))  # /app/alembic/.. -> /app
+if SERVICE_ROOT not in sys.path:
+    sys.path.insert(0, SERVICE_ROOT)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

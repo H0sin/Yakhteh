@@ -11,7 +11,7 @@ class ClinicBase(BaseModel):
 
 
 class ClinicCreate(ClinicBase):
-    owner_id: uuid.UUID
+    pass
 
 
 class ClinicUpdate(BaseModel):

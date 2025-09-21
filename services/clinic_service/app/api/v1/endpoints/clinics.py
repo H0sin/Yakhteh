@@ -1,37 +1,47 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 import uuid
 
 from app.db.session import get_session
 from app.schemas.clinic_schema import ClinicCreate, ClinicUpdate, ClinicPublic
 from app.crud.crud_clinic import get_clinic, list_clinics, create_clinic, update_clinic, delete_clinic
+from app.api.deps import get_current_user_payload
 
 router = APIRouter()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
-
-
-# NOTE: In a real deployment, we'd share an auth library or call auth_service to validate tokens.
-# Here, we just require the presence of a bearer token.
-async def require_auth(token: str = Depends(oauth2_scheme)) -> str:
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    return token
-
 
 @router.get("/", response_model=list[ClinicPublic])
-async def list_all(db: AsyncSession = Depends(get_session), _: str = Depends(require_auth)):
+async def list_all(db: AsyncSession = Depends(get_session), payload: dict = Depends(get_current_user_payload)):
     return await list_clinics(db)
 
 
 @router.post("/", response_model=ClinicPublic, status_code=201)
-async def create(payload: ClinicCreate, db: AsyncSession = Depends(get_session), _: str = Depends(require_auth)):
-    return await create_clinic(db, payload)
+async def create(payload: ClinicCreate, db: AsyncSession = Depends(get_session), token_payload: dict = Depends(get_current_user_payload)):
+    # Extract user id from token subject (sub)
+    sub = token_payload.get("sub")
+    if not sub:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject")
+    try:
+        owner_id = uuid.UUID(str(sub))
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject")
+
+    # Create clinic using owner_id from token
+    from app.models.clinic_model import Clinic
+    clinic = Clinic(
+        name=payload.name,
+        address=payload.address,
+        owner_id=owner_id,
+        subscription_status=payload.subscription_status,
+    )
+    db.add(clinic)
+    await db.commit()
+    await db.refresh(clinic)
+    return clinic
 
 
 @router.get("/{clinic_id}", response_model=ClinicPublic)
-async def get_one(clinic_id: uuid.UUID, db: AsyncSession = Depends(get_session), _: str = Depends(require_auth)):
+async def get_one(clinic_id: uuid.UUID, db: AsyncSession = Depends(get_session), payload: dict = Depends(get_current_user_payload)):
     clinic = await get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clinic not found")
@@ -39,7 +49,7 @@ async def get_one(clinic_id: uuid.UUID, db: AsyncSession = Depends(get_session),
 
 
 @router.put("/{clinic_id}", response_model=ClinicPublic)
-async def update(clinic_id: uuid.UUID, payload: ClinicUpdate, db: AsyncSession = Depends(get_session), _: str = Depends(require_auth)):
+async def update(clinic_id: uuid.UUID, payload: ClinicUpdate, db: AsyncSession = Depends(get_session), token_payload: dict = Depends(get_current_user_payload)):
     clinic = await get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clinic not found")
@@ -47,7 +57,7 @@ async def update(clinic_id: uuid.UUID, payload: ClinicUpdate, db: AsyncSession =
 
 
 @router.delete("/{clinic_id}", status_code=204)
-async def delete(clinic_id: uuid.UUID, db: AsyncSession = Depends(get_session), _: str = Depends(require_auth)):
+async def delete(clinic_id: uuid.UUID, db: AsyncSession = Depends(get_session), payload: dict = Depends(get_current_user_payload)):
     clinic = await get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clinic not found")

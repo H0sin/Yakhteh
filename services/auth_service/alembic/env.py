@@ -1,5 +1,7 @@
 from __future__ import with_statement
 from logging.config import fileConfig
+import os
+import sys
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy import make_url
 from sqlalchemy.engine import Connection
@@ -8,6 +10,12 @@ from alembic import context
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Ensure the service root (containing the `app` package) is importable
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+SERVICE_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir))  # /app/alembic/.. -> /app
+if SERVICE_ROOT not in sys.path:
+    sys.path.insert(0, SERVICE_ROOT)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
