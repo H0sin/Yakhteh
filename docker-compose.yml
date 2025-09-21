@@ -166,7 +166,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/scheduling`)"
       - "traefik.http.routers.scheduling.entrypoints=websecure"
-      - "traefik.http.routers.scheduling.tls.certresolver=cloudflare"
+      - "traefik.http.routers.scheduling.tls=true"
       - "traefik.http.services.scheduling.loadbalancer.server.port=8000"
 
   pacs_service:
@@ -205,7 +205,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`${MY_DOMAIN}`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=cloudflare"
+      - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
 volumes:
