@@ -14,8 +14,7 @@ services:
     ports:
       - "8080:80"
       - "8443:443"
-    environment:
-      # Cloudflare env vars removed since we're using a static certificate
+    environment: {}
     volumes:
       - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
       - "./traefik/certs:/certs:ro"
