@@ -11,8 +11,8 @@ services:
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
     environment:
       - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
       - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
