@@ -22,8 +22,7 @@ providers:
 certificatesResolvers:
   cloudflare:
     acme:
-      contact:
-        - "mailto:${CLOUDFLARE_EMAIL}"
+      email: "${CLOUDFLARE_EMAIL}"
       storage: /acme/acme.json
       dnsChallenge:
         provider: cloudflare
