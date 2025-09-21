@@ -18,7 +18,7 @@ services:
       - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     volumes:
       - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
-      - "./traefik/acme.json:/acme.json"
+      - "traefik_acme:/acme"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     labels:
       - "traefik.enable=true"
@@ -212,6 +212,8 @@ services:
 volumes:
   postgres_data:
   minio_data:
+  traefik_acme:
+    driver: local
 
 networks:
   yakhteh_net:
