@@ -11,13 +11,11 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
     ports:
       - "8080:80"
       - "8443:443"
     environment:
-      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
-      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      # Cloudflare env vars removed since we're using a static certificate
     volumes:
       - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
       - "./traefik/certs:/certs:ro"
@@ -27,7 +25,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${MY_DOMAIN}`)"
       - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
-      - "traefik.http.routers.traefik-dashboard.tls.certresolver=cloudflare"
       - "traefik.http.routers.traefik-dashboard.service=api@internal"
       - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$d5i4o.bS$$p8E9hIsLd4M809OMxkWuf."
     networks:
@@ -81,7 +78,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.minio.rule=Host(`minio.${MY_DOMAIN}`)"
       - "traefik.http.routers.minio.entrypoints=websecure"
-      - "traefik.http.routers.minio.tls.certresolver=cloudflare"
+      # static certificate used; no ACME resolver
       - "traefik.http.services.minio.loadbalancer.server.port=9001"
 
   auth_service:
@@ -106,7 +103,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/auth`)"
       - "traefik.http.routers.auth.entrypoints=websecure"
-      - "traefik.http.routers.auth.tls.certresolver=cloudflare"
+      - "traefik.http.routers.auth.tls=true"
       - "traefik.http.services.auth.loadbalancer.server.port=8000"
 
   clinic_service:
@@ -194,7 +191,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.pacs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/pacs`)"
       - "traefik.http.routers.pacs.entrypoints=websecure"
-      - "traefik.http.routers.pacs.tls.certresolver=cloudflare"
+      - "traefik.http.routers.pacs.tls=true"
       - "traefik.http.services.pacs.loadbalancer.server.port=8000"
 
   frontend:
