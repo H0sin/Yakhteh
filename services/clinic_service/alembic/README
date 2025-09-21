@@ -1,0 +1,5 @@
+This directory contains Alembic migration environment for the clinic_service.
+Run migrations with:
+
+alembic revision -m "message"
+alembic upgrade head
