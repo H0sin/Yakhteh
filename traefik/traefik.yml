@@ -26,3 +26,9 @@ certificatesResolvers:
       storage: /acme/acme.json
       dnsChallenge:
         provider: cloudflare
+
+# Static TLS certificates (user-provided). Traefik will serve these files for matching SNI.
+tls:
+  certificates:
+    - certFile: /certs/chizmarket.crt
+      keyFile: /certs/chizmarket.key
