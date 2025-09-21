@@ -1,6 +1,35 @@
 version: '3.9'
 
 services:
+  traefik:
+    image: "traefik:v3.0"
+    container_name: "traefik"
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+    volumes:
+      - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
+      - "./traefik/acme.json:/acme.json"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${MY_DOMAIN}`)"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$d5i4o.bS$$p8E9hIsLd4M809OMxkWuf."
+    networks:
+      - yakhteh_net
+
   postgres_db:
     image: postgres:15
     container_name: yakhteh_postgres
@@ -9,8 +38,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -25,8 +52,6 @@ services:
     image: redis:7
     container_name: yakhteh_redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -45,13 +70,16 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: ["server", "/data", "--console-address", ":9001"]
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     volumes:
       - minio_data:/data
     networks:
       - yakhteh_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio.rule=Host(`minio.${MY_DOMAIN}`)"
+      - "traefik.http.routers.minio.entrypoints=websecure"
+      - "traefik.http.routers.minio.tls.certresolver=cloudflare"
+      - "traefik.http.services.minio.loadbalancer.server.port=9001"
 
   auth_service:
     build:
@@ -65,15 +93,18 @@ services:
     env_file:
       - .env
     environment:
-      # Service-specific overrides can go here
       DATABASE_URL: ${DATABASE_URL}
       SECRET_KEY: ${SECRET_KEY}
       ALGORITHM: ${ALGORITHM}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
-    ports:
-      - "8001:8000"
     networks:
       - yakhteh_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/auth`)"
+      - "traefik.http.routers.auth.entrypoints=websecure"
+      - "traefik.http.routers.auth.tls.certresolver=cloudflare"
+      - "traefik.http.services.auth.loadbalancer.server.port=8000"
 
   clinic_service:
     build:
@@ -91,8 +122,6 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
     command: ["python", "-m", "app.worker"]
-    ports:
-      - "8002:8000"
     networks:
       - yakhteh_net
 
@@ -132,10 +161,14 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       SECRET_KEY: ${SECRET_KEY}
       ALGORITHM: ${ALGORITHM}
-    ports:
-      - "8004:8000"
     networks:
       - yakhteh_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/scheduling`)"
+      - "traefik.http.routers.scheduling.entrypoints=websecure"
+      - "traefik.http.routers.scheduling.tls.certresolver=cloudflare"
+      - "traefik.http.services.scheduling.loadbalancer.server.port=8000"
 
   pacs_service:
     build:
@@ -152,10 +185,29 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    ports:
-      - "8005:8000"
     networks:
       - yakhteh_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pacs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/pacs`)"
+      - "traefik.http.routers.pacs.entrypoints=websecure"
+      - "traefik.http.routers.pacs.tls.certresolver=cloudflare"
+      - "traefik.http.services.pacs.loadbalancer.server.port=8000"
+
+  frontend:
+    build:
+      context: ./frontend_yakhteh
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: unless-stopped
+    networks:
+      - yakhteh_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${MY_DOMAIN}`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=cloudflare"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
 volumes:
   postgres_data:

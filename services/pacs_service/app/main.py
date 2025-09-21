@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.db.session import engine, Base
+from app.api.v1.endpoints.studies import router as studies_router
 
 
 def create_app() -> FastAPI:
@@ -16,6 +17,8 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    app.include_router(studies_router, prefix="/api/v1/studies", tags=["studies"])
+
     @app.on_event("startup")
     async def on_startup():
         # Ensure tables exist (dev convenience). In prod, rely on Alembic migrations.
@@ -27,4 +30,3 @@ def create_app() -> FastAPI:
         return {"status": "ok", "service": "pacs", "environment": settings.environment}
 
     return app
-
