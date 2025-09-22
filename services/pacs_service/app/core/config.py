@@ -7,6 +7,7 @@ class Settings(BaseSettings):
 
     environment: str = "local"
     database_url: str = "postgresql+asyncpg://postgres:postgres@postgres_db:5432/yakhteh"
+    my_domain: str = "localhost"  # Domain for CORS and routing
 
 
 @lru_cache

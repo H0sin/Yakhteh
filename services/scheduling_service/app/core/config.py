@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     # JWT validation for protected endpoints
     secret_key: str = "change_me_in_prod"
     algorithm: str = "HS256"
+    
+    my_domain: str = "localhost"  # Domain for CORS and routing
 
 
 @lru_cache

@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
 
     redis_url: str = "redis://redis_cache:6379/0"
+    my_domain: str = "localhost"  # Domain for CORS and routing
 
 
 @lru_cache
