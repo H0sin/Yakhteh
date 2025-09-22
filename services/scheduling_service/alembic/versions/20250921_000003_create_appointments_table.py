@@ -18,6 +18,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Create enum type if it doesn't exist
+    appointment_status_enum = postgresql.ENUM('SCHEDULED', 'COMPLETED', 'CANCELLED', 'NO_SHOW', name='appointmentstatus')
+    appointment_status_enum.create(op.get_bind(), checkfirst=True)
+    
     op.create_table(
         'appointments',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
@@ -39,4 +43,8 @@ def downgrade() -> None:
     op.drop_index('ix_appointments_clinic_id', table_name='appointments')
     op.drop_index('ix_appointments_doctor_id', table_name='appointments')
     op.drop_table('appointments')
+    
+    # Drop enum type if it exists
+    appointment_status_enum = postgresql.ENUM(name='appointmentstatus')
+    appointment_status_enum.drop(op.get_bind(), checkfirst=True)
 

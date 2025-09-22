@@ -18,6 +18,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Create enum type if it doesn't exist
+    user_role_enum = postgresql.ENUM('doctor', 'clinic_admin', name='userrole')
+    user_role_enum.create(op.get_bind(), checkfirst=True)
+    
     op.create_table(
         'users',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
@@ -35,3 +39,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_index('ix_email', table_name='users')
     op.drop_table('users')
+    
+    # Drop enum type if it exists
+    user_role_enum = postgresql.ENUM(name='userrole')
+    user_role_enum.drop(op.get_bind(), checkfirst=True)
