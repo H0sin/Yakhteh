@@ -7,6 +7,7 @@ services:
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.constraints=Label(`traefik.constraint-label`, `yakhteh`)"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.letsencrypt.acme.email=${LETS_ENCRYPT_EMAIL}"
@@ -23,6 +24,7 @@ services:
       - "./data/letsencrypt:/letsencrypt"
     labels:
       - "traefik.enable=true"
+      - "traefik.constraint-label=yakhteh"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
       - "traefik.http.routers.http-catchall.entrypoints=web"
@@ -81,6 +83,7 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
+      - "traefik.constraint-label=yakhteh"
       - "traefik.http.routers.yakhteh-minio.rule=Host(`minio.${MY_DOMAIN}`)"
       - "traefik.http.routers.yakhteh-minio.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-minio.tls=true"
@@ -109,6 +112,7 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
+      - "traefik.constraint-label=yakhteh"
       - "traefik.http.routers.yakhteh-auth.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/auth`)"
       - "traefik.http.routers.yakhteh-auth.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-auth.tls=true"
@@ -174,6 +178,7 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
+      - "traefik.constraint-label=yakhteh"
       - "traefik.http.routers.yakhteh-scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/appointments`, `/api/v1/availability`)"
       - "traefik.http.routers.yakhteh-scheduling.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-scheduling.tls=true"
@@ -199,6 +204,7 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
+      - "traefik.constraint-label=yakhteh"
       - "traefik.http.routers.yakhteh-pacs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/studies`)"
       - "traefik.http.routers.yakhteh-pacs.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-pacs.tls=true"
@@ -215,6 +221,7 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
+      - "traefik.constraint-label=yakhteh"
       - "traefik.http.routers.yakhteh-frontend.rule=Host(`frontend.${MY_DOMAIN}`)"
       - "traefik.http.routers.yakhteh-frontend.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-frontend.tls=true"
