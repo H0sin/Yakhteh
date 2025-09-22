@@ -1,6 +1,8 @@
+import uuid
+from typing import Dict, List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-import uuid
 
 from app.db.session import get_session
 from app.schemas.clinic_schema import ClinicCreate, ClinicUpdate, ClinicPublic
@@ -10,21 +12,34 @@ from app.api.deps import get_current_user_payload
 router = APIRouter()
 
 
-@router.get("/", response_model=list[ClinicPublic])
-async def list_all(db: AsyncSession = Depends(get_session), payload: dict = Depends(get_current_user_payload)):
+@router.get("/", response_model=List[ClinicPublic])
+async def list_all(
+    db: AsyncSession = Depends(get_session), 
+    payload: Dict[str, str] = Depends(get_current_user_payload)
+) -> List[ClinicPublic]:
     return await list_clinics(db)
 
 
 @router.post("/", response_model=ClinicPublic, status_code=201)
-async def create(payload: ClinicCreate, db: AsyncSession = Depends(get_session), token_payload: dict = Depends(get_current_user_payload)):
+async def create(
+    payload: ClinicCreate, 
+    db: AsyncSession = Depends(get_session), 
+    token_payload: Dict[str, str] = Depends(get_current_user_payload)
+) -> ClinicPublic:
     # Extract user id from token subject (sub)
     sub = token_payload.get("sub")
     if not sub:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Invalid token subject"
+        )
     try:
         owner_id = uuid.UUID(str(sub))
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Invalid token subject"
+        )
 
     # Create clinic using owner_id from token
     from app.models.clinic_model import Clinic

@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -6,8 +9,23 @@ from app.db.session import engine, Base
 from app.api.v1.endpoints.studies import router as studies_router
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    # Startup
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    # Shutdown - nothing to do for now
+
+
 def create_app() -> FastAPI:
-    app = FastAPI(title="Yakhteh PACS Service", version="0.1.0")
+    app = FastAPI(
+        title="Yakhteh PACS Service", 
+        version="0.1.0",
+        docs_url="/docs",  # Default docs URL
+        redoc_url="/redoc",  # Default ReDoc URL
+        lifespan=lifespan
+    )
 
     # CORS (restrict to specific origins for security)
     allowed_origins = [
@@ -25,12 +43,6 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(studies_router, prefix="/api/v1/studies", tags=["studies"])
-
-    @app.on_event("startup")
-    async def on_startup():
-        # Ensure tables exist (dev convenience). In prod, rely on Alembic migrations.
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
 
     @app.get("/healthz")
     async def healthz():
