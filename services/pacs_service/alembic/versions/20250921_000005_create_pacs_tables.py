@@ -18,48 +18,84 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Get connection and check for existing tables
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_tables = inspector.get_table_names()
+    
     # patients
-    op.create_table(
-        'patients',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
-        sa.Column('full_name', sa.String(length=255), nullable=False),
-        sa.Column('national_id', sa.String(length=50), nullable=False),
-        sa.Column('phone_number', sa.String(length=50), nullable=False),
-    )
-    op.create_index('ix_patients_national_id', 'patients', ['national_id'], unique=True)
-    op.create_index('ix_patients_phone_number', 'patients', ['phone_number'])
+    if 'patients' not in existing_tables:
+        op.create_table(
+            'patients',
+            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
+            sa.Column('full_name', sa.String(length=255), nullable=False),
+            sa.Column('national_id', sa.String(length=50), nullable=False),
+            sa.Column('phone_number', sa.String(length=50), nullable=False),
+        )
+        op.create_index('ix_patients_national_id', 'patients', ['national_id'], unique=True)
+        op.create_index('ix_patients_phone_number', 'patients', ['phone_number'])
 
     # studies
-    op.create_table(
-        'studies',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
-        sa.Column('patient_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('patients.id', ondelete='CASCADE'), nullable=False),
-        sa.Column('clinic_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('description', sa.String(length=500), nullable=False),
-        sa.Column('study_date', sa.DateTime(timezone=True), nullable=False),
-    )
-    op.create_index('ix_studies_patient_id', 'studies', ['patient_id'])
-    op.create_index('ix_studies_clinic_id', 'studies', ['clinic_id'])
+    if 'studies' not in existing_tables:
+        op.create_table(
+            'studies',
+            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
+            sa.Column('patient_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('patients.id', ondelete='CASCADE'), nullable=False),
+            sa.Column('clinic_id', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('description', sa.String(length=500), nullable=False),
+            sa.Column('study_date', sa.DateTime(timezone=True), nullable=False),
+        )
+        op.create_index('ix_studies_patient_id', 'studies', ['patient_id'])
+        op.create_index('ix_studies_clinic_id', 'studies', ['clinic_id'])
 
     # images
-    op.create_table(
-        'images',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
-        sa.Column('study_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('studies.id', ondelete='CASCADE'), nullable=False),
-        sa.Column('object_name', sa.String(length=255), nullable=False),
-        sa.Column('file_format', sa.String(length=50), nullable=False),
-        sa.Column('upload_timestamp', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),
-    )
-    op.create_index('ix_images_study_id', 'images', ['study_id'])
+    if 'images' not in existing_tables:
+        op.create_table(
+            'images',
+            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
+            sa.Column('study_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('studies.id', ondelete='CASCADE'), nullable=False),
+            sa.Column('object_name', sa.String(length=255), nullable=False),
+            sa.Column('file_format', sa.String(length=50), nullable=False),
+            sa.Column('upload_timestamp', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),
+        )
+        op.create_index('ix_images_study_id', 'images', ['study_id'])
 
 
 def downgrade() -> None:
-    op.drop_index('ix_images_study_id', table_name='images')
-    op.drop_table('images')
-    op.drop_index('ix_studies_clinic_id', table_name='studies')
-    op.drop_index('ix_studies_patient_id', table_name='studies')
-    op.drop_table('studies')
-    op.drop_index('ix_patients_phone_number', table_name='patients')
-    op.drop_index('ix_patients_national_id', table_name='patients')
-    op.drop_table('patients')
+    # Get connection and check for existing tables
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_tables = inspector.get_table_names()
+    
+    # Drop images table and indexes if they exist
+    if 'images' in existing_tables:
+        try:
+            op.drop_index('ix_images_study_id', table_name='images')
+        except Exception:
+            pass  # Index might not exist
+        op.drop_table('images')
+    
+    # Drop studies table and indexes if they exist
+    if 'studies' in existing_tables:
+        try:
+            op.drop_index('ix_studies_clinic_id', table_name='studies')
+        except Exception:
+            pass  # Index might not exist
+        try:
+            op.drop_index('ix_studies_patient_id', table_name='studies')
+        except Exception:
+            pass  # Index might not exist
+        op.drop_table('studies')
+    
+    # Drop patients table and indexes if they exist
+    if 'patients' in existing_tables:
+        try:
+            op.drop_index('ix_patients_phone_number', table_name='patients')
+        except Exception:
+            pass  # Index might not exist
+        try:
+            op.drop_index('ix_patients_national_id', table_name='patients')
+        except Exception:
+            pass  # Index might not exist
+        op.drop_table('patients')
 
