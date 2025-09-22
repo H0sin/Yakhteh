@@ -50,7 +50,7 @@ Each service has two types of routes configured in Traefik:
 #### API Routes
 Handle actual API calls:
 ```yaml
-- "traefik.http.routers.yakhteh-scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/appointments`, `/api/v1/availability`)"
+- "traefik.http.routers.yakhteh-scheduling.rule=Host(`api.${MY_DOMAIN}`) && (PathPrefix(`/api/v1/appointments`) || PathPrefix(`/api/v1/availability`))"
 ```
 
 #### Documentation Routes
