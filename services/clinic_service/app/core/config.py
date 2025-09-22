@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     environment: str = "local"
     database_url: str = "postgresql+asyncpg://postgres:postgres@postgres_db:5432/yakhteh"
     redis_url: str = "redis://redis_cache:6379/0"
+    my_domain: str = "localhost"  # Domain for CORS and routing
 
 
 @lru_cache

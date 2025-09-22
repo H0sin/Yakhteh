@@ -9,9 +9,16 @@ from app.api.v1.endpoints.studies import router as studies_router
 def create_app() -> FastAPI:
     app = FastAPI(title="Yakhteh PACS Service", version="0.1.0")
 
+    # CORS (restrict to specific origins for security)
+    allowed_origins = [
+        "http://localhost:3000",  # Local development
+    ]
+    if settings.my_domain != "localhost":
+        allowed_origins.append(f"https://frontend.{settings.my_domain}")
+    
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

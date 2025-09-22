@@ -94,11 +94,13 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       ALGORITHM: ${ALGORITHM}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+    ports:
+      - "8001:8000"  # For local development compatibility
     networks:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.auth.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/auth`)"
+      - "traefik.http.routers.auth.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/auth`)"
       - "traefik.http.routers.auth.entrypoints=websecure"
       - "traefik.http.routers.auth.tls=true"
       - "traefik.http.services.auth.loadbalancer.server.port=8000"
@@ -162,7 +164,7 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/scheduling`)"
+      - "traefik.http.routers.scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/appointments`, `/api/v1/availability`)"
       - "traefik.http.routers.scheduling.entrypoints=websecure"
       - "traefik.http.routers.scheduling.tls=true"
       - "traefik.http.services.scheduling.loadbalancer.server.port=8000"
@@ -186,7 +188,7 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.pacs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/pacs`)"
+      - "traefik.http.routers.pacs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/studies`)"
       - "traefik.http.routers.pacs.entrypoints=websecure"
       - "traefik.http.routers.pacs.tls=true"
       - "traefik.http.services.pacs.loadbalancer.server.port=8000"
