@@ -30,8 +30,12 @@ COPY app ./app
 COPY main.py ./main.py
 COPY alembic.ini ./alembic.ini
 COPY alembic ./alembic
+COPY startup.sh ./startup.sh
+
+# Make startup script executable
+RUN chmod +x ./startup.sh
 
 EXPOSE 8000
 
-# Default command
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command - run migrations then start service
+CMD ["./startup.sh"]
