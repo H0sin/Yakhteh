@@ -142,3 +142,17 @@ pytest
 Notes:
 - Tests auto-create the yakhteh_test database and drop all tables after the run.
 - You can override the DB with TEST_DATABASE_URL (any async SQLAlchemy URL supported).
+
+## Database Management
+
+### External Database Access
+PostgreSQL is configured to allow connections from external database management tools like DataGrip, pgAdmin, or other SQL clients.
+
+**Connection Details:**
+- Host: `localhost` (when running locally)
+- Port: `5432`
+- Database: `yakhteh`
+- Username: `postgres`
+- Password: `postgres`
+
+For detailed configuration and security considerations, see [docs/postgresql-external-access.md](docs/postgresql-external-access.md).
