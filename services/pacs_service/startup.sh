@@ -13,7 +13,7 @@ log_error() {
 }
 
 SERVICE_NAME=${1:-"service"}
-log "Starting $SERVICE_NAME startup process..."
+log "Starting PACS service startup process..."
 
 # Wait for database to be available (basic health check)
 log "Checking database connectivity..."
@@ -88,5 +88,5 @@ else
     log "No alembic.ini found, skipping migrations"
 fi
 
-log "All startup checks passed. Starting $SERVICE_NAME..."
+log "All startup checks passed. Starting PACS service..."
 exec uvicorn main:app --host 0.0.0.0 --port 8000

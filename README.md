@@ -20,7 +20,36 @@ This platform follows a microservices architecture where each service is contain
 - **MinIO**: Object storage for files and medical images
 - **Traefik**: Reverse proxy and SSL termination
 
+## Development
+
+### Code Quality
+
+This project follows modern Python and TypeScript best practices:
+
+- **Type Hints**: All Python code includes comprehensive type hints
+- **Error Handling**: Consistent error handling with proper HTTP status codes
+- **Logging**: Structured logging across all services
+- **Security**: JWT-based authentication, CORS configuration, secure headers
+- **Testing**: Unit and integration tests for all services
+
+### Architecture Improvements
+
+Recent refactoring includes:
+
+- **Standardized FastAPI Patterns**: Modern lifespan context managers instead of deprecated event handlers
+- **Multi-stage Docker Builds**: Optimized, secure container images with minimal attack surface
+- **Shared Utilities**: Common functionality extracted to reduce code duplication
+- **Consistent Configuration**: Standardized environment variable handling across services
+- **Proper Health Checks**: Comprehensive health monitoring for all services
+
 ## Quickstart (Local Development)
+
+### Prerequisites
+
+- Docker and Docker Compose
+- Git
+
+### Setup
 
 1. Copy the example environment file and configure it:
 ```bash
