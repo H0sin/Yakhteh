@@ -209,7 +209,7 @@ services:
       - "traefik.enable=true"
       - "traefik.constraint-label=yakhteh"
       # Main API routes
-      - "traefik.http.routers.yakhteh-scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/appointments`, `/api/v1/availability`)"
+      - "traefik.http.routers.yakhteh-scheduling.rule=Host(`api.${MY_DOMAIN}`) && (PathPrefix(`/api/v1/appointments`) || PathPrefix(`/api/v1/availability`))"
       - "traefik.http.routers.yakhteh-scheduling.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-scheduling.tls=true"
       - "traefik.http.routers.yakhteh-scheduling.tls.certresolver=letsencrypt"
