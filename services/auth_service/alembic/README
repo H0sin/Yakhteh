@@ -1,5 +1,47 @@
-This directory contains Alembic migration environment for the auth_service.
-Run migrations with:
+# Alembic Migration Environment for Auth Service
 
+This directory contains the Alembic migration environment for the auth_service.
+
+## Usage
+
+### Auto-generating migrations (Recommended)
+To automatically generate a migration based on model changes:
+```bash
+alembic revision --autogenerate -m "describe your changes"
+```
+
+### Manual migrations
+To create a manual migration:
+```bash
 alembic revision -m "message"
+```
+
+### Applying migrations
+To apply all pending migrations:
+```bash
 alembic upgrade head
+```
+
+### Other useful commands
+```bash
+# Check current migration status
+alembic current
+
+# Show migration history
+alembic history
+
+# Downgrade to previous migration
+alembic downgrade -1
+```
+
+## Configuration Notes
+
+The `env.py` file has been configured to properly import all models from the `app.models` package to ensure autogenerate works correctly. The template file `script.py.mako` is also included for proper migration file generation.
+
+### Model Detection
+Models are automatically detected through the import in `env.py`:
+```python
+from app import models  # This ensures all models are registered
+```
+
+Make sure all new models are properly imported in `app/models/__init__.py` for autogenerate to detect them.
