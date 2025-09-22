@@ -38,7 +38,7 @@ def upgrade() -> None:
             sa.Column('clinic_id', postgresql.UUID(as_uuid=True), nullable=False),
             sa.Column('start_time', sa.DateTime(timezone=True), nullable=False),
             sa.Column('end_time', sa.DateTime(timezone=True), nullable=False),
-            sa.Column('status', sa.Enum('SCHEDULED', 'COMPLETED', 'CANCELLED', 'NO_SHOW', name='appointmentstatus', create_type=False), nullable=False, server_default='SCHEDULED'),
+            sa.Column('status', appointment_status_enum, nullable=False, server_default='SCHEDULED'),
             sa.Column('notes', sa.Text(), nullable=True),
             sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         )
