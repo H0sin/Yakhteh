@@ -152,14 +152,15 @@ services:
       - "traefik.http.routers.yakhteh-clinic.tls=true"
       - "traefik.http.routers.yakhteh-clinic.tls.certresolver=letsencrypt"
       - "traefik.http.services.yakhteh-clinic.loadbalancer.server.port=8000"
-      # Service-specific docs route (/inventory)
+      # Service-specific docs route (/inventory -> /docs)
       - "traefik.http.routers.yakhteh-clinic-docs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/inventory`)"
       - "traefik.http.routers.yakhteh-clinic-docs.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-clinic-docs.tls=true"
       - "traefik.http.routers.yakhteh-clinic-docs.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.yakhteh-clinic-docs.middlewares=yakhteh-clinic-stripprefix"
+      - "traefik.http.routers.yakhteh-clinic-docs.middlewares=yakhteh-clinic-rewrite"
       - "traefik.http.routers.yakhteh-clinic-docs.service=yakhteh-clinic"
-      - "traefik.http.middlewares.yakhteh-clinic-stripprefix.stripprefix.prefixes=/inventory"
+      - "traefik.http.middlewares.yakhteh-clinic-rewrite.replacepathregex.regex=^/inventory(.*)"
+      - "traefik.http.middlewares.yakhteh-clinic-rewrite.replacepathregex.replacement=/docs$$1"
 
   membership_service:
     build:
@@ -208,14 +209,15 @@ services:
       - "traefik.http.routers.yakhteh-scheduling.tls=true"
       - "traefik.http.routers.yakhteh-scheduling.tls.certresolver=letsencrypt"
       - "traefik.http.services.yakhteh-scheduling.loadbalancer.server.port=8000"
-      # Service-specific docs route (/scheduling)
+      # Service-specific docs route (/scheduling -> /docs)
       - "traefik.http.routers.yakhteh-scheduling-docs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/scheduling`)"
       - "traefik.http.routers.yakhteh-scheduling-docs.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-scheduling-docs.tls=true"
       - "traefik.http.routers.yakhteh-scheduling-docs.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.yakhteh-scheduling-docs.middlewares=yakhteh-scheduling-stripprefix"
+      - "traefik.http.routers.yakhteh-scheduling-docs.middlewares=yakhteh-scheduling-rewrite"
       - "traefik.http.routers.yakhteh-scheduling-docs.service=yakhteh-scheduling"
-      - "traefik.http.middlewares.yakhteh-scheduling-stripprefix.stripprefix.prefixes=/scheduling"
+      - "traefik.http.middlewares.yakhteh-scheduling-rewrite.replacepathregex.regex=^/scheduling(.*)"
+      - "traefik.http.middlewares.yakhteh-scheduling-rewrite.replacepathregex.replacement=/docs$$1"
 
   pacs_service:
     build:
