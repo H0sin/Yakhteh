@@ -21,22 +21,42 @@ def upgrade() -> None:
     subscription_status_enum = postgresql.ENUM('free', 'premium', 'expired', name='subscriptionstatus')
     subscription_status_enum.create(op.get_bind(), checkfirst=True)
     
-    op.create_table(
-        'clinics',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
-        sa.Column('name', sa.String(length=255), nullable=False),
-        sa.Column('address', sa.String(length=500), nullable=True),
-        sa.Column('owner_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('subscription_status', sa.Enum('free', 'premium', 'expired', name='subscriptionstatus'), nullable=False, server_default='free'),
-    )
-    op.create_index('ix_clinics_name', 'clinics', ['name'])
-    op.create_index('ix_clinics_owner_id', 'clinics', ['owner_id'])
+    # Get connection and check for existing tables
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_tables = inspector.get_table_names()
+    
+    # Create clinics table if it doesn't exist
+    if 'clinics' not in existing_tables:
+        op.create_table(
+            'clinics',
+            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
+            sa.Column('name', sa.String(length=255), nullable=False),
+            sa.Column('address', sa.String(length=500), nullable=True),
+            sa.Column('owner_id', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('subscription_status', sa.Enum('free', 'premium', 'expired', name='subscriptionstatus'), nullable=False, server_default='free'),
+        )
+        op.create_index('ix_clinics_name', 'clinics', ['name'])
+        op.create_index('ix_clinics_owner_id', 'clinics', ['owner_id'])
 
 
 def downgrade() -> None:
-    op.drop_index('ix_clinics_owner_id', table_name='clinics')
-    op.drop_index('ix_clinics_name', table_name='clinics')
-    op.drop_table('clinics')
+    # Get connection and check for existing tables
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_tables = inspector.get_table_names()
+    
+    # Drop clinics table and indexes if they exist
+    if 'clinics' in existing_tables:
+        try:
+            op.drop_index('ix_clinics_owner_id', table_name='clinics')
+        except Exception:
+            pass  # Index might not exist
+        try:
+            op.drop_index('ix_clinics_name', table_name='clinics')
+        except Exception:
+            pass  # Index might not exist
+        op.drop_table('clinics')
     
     # Drop enum type if it exists
     subscription_status_enum = postgresql.ENUM(name='subscriptionstatus')
