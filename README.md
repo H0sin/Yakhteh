@@ -39,6 +39,11 @@ docker compose up --build
 - Auth service API docs: http://localhost:8001/docs
 - Other services are accessible through the auth service or via internal networking
 
+For development, individual service documentation:
+- Auth Service: http://localhost:8001/docs
+- Scheduling Service: http://localhost:8002/docs  
+- Clinic Service: http://localhost:8003/docs
+
 ## Production Deployment
 
 ### Prerequisites
@@ -77,6 +82,14 @@ When deployed with a domain, services are accessible via:
 - API Gateway: https://api.${MY_DOMAIN}
 - Traefik Dashboard: https://traefik.${MY_DOMAIN}
 - MinIO Console: https://minio.${MY_DOMAIN}
+
+### API Documentation
+
+- **Main API Documentation**: https://api.${MY_DOMAIN}/docs (Auth Service)
+- **Scheduling Service Documentation**: https://api.${MY_DOMAIN}/scheduling
+- **Clinic Service Documentation**: https://api.${MY_DOMAIN}/inventory
+
+Each service's documentation shows only the relevant endpoints for that service, making it easier for teams to focus on their specific APIs.
 
 Set the `MY_DOMAIN` environment variable in your `.env` file for proper Traefik routing.
 
