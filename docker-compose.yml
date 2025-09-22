@@ -193,11 +193,11 @@ services:
       - "traefik.http.routers.pacs.tls=true"
       - "traefik.http.services.pacs.loadbalancer.server.port=8000"
 
-  frontend:
+  frontend_service:
     build:
-      context: ./frontend_yakhteh
+      context: ./services/frontend_service
       dockerfile: Dockerfile
-    container_name: frontend
+    container_name: yakhteh_frontend_service
     restart: unless-stopped
     networks:
       - yakhteh_net
