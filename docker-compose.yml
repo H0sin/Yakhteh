@@ -113,11 +113,18 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.constraint-label=yakhteh"
+      # Main API routes
       - "traefik.http.routers.yakhteh-auth.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/auth`)"
       - "traefik.http.routers.yakhteh-auth.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-auth.tls=true"
       - "traefik.http.routers.yakhteh-auth.tls.certresolver=letsencrypt"
       - "traefik.http.services.yakhteh-auth.loadbalancer.server.port=8000"
+      # Main docs route (serves as default/main docs)
+      - "traefik.http.routers.yakhteh-auth-docs.rule=Host(`api.${MY_DOMAIN}`) && (Path(`/docs`) || Path(`/redoc`) || PathPrefix(`/openapi.json`))"
+      - "traefik.http.routers.yakhteh-auth-docs.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-auth-docs.tls=true"
+      - "traefik.http.routers.yakhteh-auth-docs.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.yakhteh-auth-docs.service=yakhteh-auth"
 
   clinic_service:
     build:
@@ -134,9 +141,25 @@ services:
       - .env
     environment:
       DATABASE_URL: ${DATABASE_URL}
-    command: ["python", "-m", "app.worker"]
     networks:
       - yakhteh_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.constraint-label=yakhteh"
+      # Main API routes
+      - "traefik.http.routers.yakhteh-clinic.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/clinics`)"
+      - "traefik.http.routers.yakhteh-clinic.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-clinic.tls=true"
+      - "traefik.http.routers.yakhteh-clinic.tls.certresolver=letsencrypt"
+      - "traefik.http.services.yakhteh-clinic.loadbalancer.server.port=8000"
+      # Service-specific docs route (/inventory)
+      - "traefik.http.routers.yakhteh-clinic-docs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/inventory`)"
+      - "traefik.http.routers.yakhteh-clinic-docs.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-clinic-docs.tls=true"
+      - "traefik.http.routers.yakhteh-clinic-docs.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.yakhteh-clinic-docs.middlewares=yakhteh-clinic-stripprefix"
+      - "traefik.http.routers.yakhteh-clinic-docs.service=yakhteh-clinic"
+      - "traefik.http.middlewares.yakhteh-clinic-stripprefix.stripprefix.prefixes=/inventory"
 
   membership_service:
     build:
@@ -179,11 +202,20 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.constraint-label=yakhteh"
+      # Main API routes
       - "traefik.http.routers.yakhteh-scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/appointments`, `/api/v1/availability`)"
       - "traefik.http.routers.yakhteh-scheduling.entrypoints=websecure"
       - "traefik.http.routers.yakhteh-scheduling.tls=true"
       - "traefik.http.routers.yakhteh-scheduling.tls.certresolver=letsencrypt"
       - "traefik.http.services.yakhteh-scheduling.loadbalancer.server.port=8000"
+      # Service-specific docs route (/scheduling)
+      - "traefik.http.routers.yakhteh-scheduling-docs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/scheduling`)"
+      - "traefik.http.routers.yakhteh-scheduling-docs.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-scheduling-docs.tls=true"
+      - "traefik.http.routers.yakhteh-scheduling-docs.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.yakhteh-scheduling-docs.middlewares=yakhteh-scheduling-stripprefix"
+      - "traefik.http.routers.yakhteh-scheduling-docs.service=yakhteh-scheduling"
+      - "traefik.http.middlewares.yakhteh-scheduling-stripprefix.stripprefix.prefixes=/scheduling"
 
   pacs_service:
     build:

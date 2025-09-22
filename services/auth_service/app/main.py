@@ -5,7 +5,12 @@ from app.api.v1.endpoints.auth import router as auth_router
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Yakhteh Auth Service", version="0.1.0")
+    app = FastAPI(
+        title="Yakhteh Auth Service", 
+        version="0.1.0",
+        docs_url="/docs",  # Default docs URL
+        redoc_url="/redoc"  # Default ReDoc URL
+    )
 
     # CORS (restrict to specific origins for security)
     allowed_origins = [
