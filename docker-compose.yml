@@ -27,11 +27,11 @@ services:
       - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
       - "traefik.http.routers.http-catchall.entrypoints=web"
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.${MY_DOMAIN}`)"
-      - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.yakhteh-traefik.rule=Host(`traefik.${MY_DOMAIN}`)"
+      - "traefik.http.routers.yakhteh-traefik.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-traefik.tls=true"
+      - "traefik.http.routers.yakhteh-traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.yakhteh-traefik.service=api@internal"
     networks:
       - yakhteh_net
 
@@ -81,11 +81,11 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.minio.rule=Host(`minio.${MY_DOMAIN}`)"
-      - "traefik.http.routers.minio.entrypoints=websecure"
-      - "traefik.http.routers.minio.tls=true"
-      - "traefik.http.routers.minio.tls.certresolver=letsencrypt"
-      - "traefik.http.services.minio.loadbalancer.server.port=9001"
+      - "traefik.http.routers.yakhteh-minio.rule=Host(`minio.${MY_DOMAIN}`)"
+      - "traefik.http.routers.yakhteh-minio.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-minio.tls=true"
+      - "traefik.http.routers.yakhteh-minio.tls.certresolver=letsencrypt"
+      - "traefik.http.services.yakhteh-minio.loadbalancer.server.port=9001"
 
   auth_service:
     build:
@@ -109,11 +109,11 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.auth.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/auth`)"
-      - "traefik.http.routers.auth.entrypoints=websecure"
-      - "traefik.http.routers.auth.tls=true"
-      - "traefik.http.routers.auth.tls.certresolver=letsencrypt"
-      - "traefik.http.services.auth.loadbalancer.server.port=8000"
+      - "traefik.http.routers.yakhteh-auth.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/auth`)"
+      - "traefik.http.routers.yakhteh-auth.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-auth.tls=true"
+      - "traefik.http.routers.yakhteh-auth.tls.certresolver=letsencrypt"
+      - "traefik.http.services.yakhteh-auth.loadbalancer.server.port=8000"
 
   clinic_service:
     build:
@@ -174,11 +174,11 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/appointments`, `/api/v1/availability`)"
-      - "traefik.http.routers.scheduling.entrypoints=websecure"
-      - "traefik.http.routers.scheduling.tls=true"
-      - "traefik.http.routers.scheduling.tls.certresolver=letsencrypt"
-      - "traefik.http.services.scheduling.loadbalancer.server.port=8000"
+      - "traefik.http.routers.yakhteh-scheduling.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/appointments`, `/api/v1/availability`)"
+      - "traefik.http.routers.yakhteh-scheduling.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-scheduling.tls=true"
+      - "traefik.http.routers.yakhteh-scheduling.tls.certresolver=letsencrypt"
+      - "traefik.http.services.yakhteh-scheduling.loadbalancer.server.port=8000"
 
   pacs_service:
     build:
@@ -199,11 +199,11 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.pacs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/studies`)"
-      - "traefik.http.routers.pacs.entrypoints=websecure"
-      - "traefik.http.routers.pacs.tls=true"
-      - "traefik.http.routers.pacs.tls.certresolver=letsencrypt"
-      - "traefik.http.services.pacs.loadbalancer.server.port=8000"
+      - "traefik.http.routers.yakhteh-pacs.rule=Host(`api.${MY_DOMAIN}`) && PathPrefix(`/api/v1/studies`)"
+      - "traefik.http.routers.yakhteh-pacs.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-pacs.tls=true"
+      - "traefik.http.routers.yakhteh-pacs.tls.certresolver=letsencrypt"
+      - "traefik.http.services.yakhteh-pacs.loadbalancer.server.port=8000"
 
   frontend_service:
     build:
@@ -215,11 +215,11 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`frontend.${MY_DOMAIN}`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.yakhteh-frontend.rule=Host(`frontend.${MY_DOMAIN}`)"
+      - "traefik.http.routers.yakhteh-frontend.entrypoints=websecure"
+      - "traefik.http.routers.yakhteh-frontend.tls=true"
+      - "traefik.http.routers.yakhteh-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.yakhteh-frontend.loadbalancer.server.port=80"
 
 volumes:
   postgres_data:
