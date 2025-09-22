@@ -41,6 +41,37 @@ docker compose up --build
 
 ## Production Deployment
 
+### Prerequisites
+
+For automatic HTTPS with Let's Encrypt to work, you need to configure the following DNS A-records for your domain:
+
+- `frontend.yourdomain.com` → Server IP
+- `api.yourdomain.com` → Server IP  
+- `traefik.yourdomain.com` → Server IP
+- `minio.yourdomain.com` → Server IP
+
+### Configuration
+
+1. Copy and configure the environment file:
+```bash
+cp .env.example .env
+```
+
+2. Update the following variables in `.env`:
+```bash
+MY_DOMAIN=yourdomain.com
+LETS_ENCRYPT_EMAIL=your-email@yourdomain.com
+```
+
+3. Deploy the platform:
+```bash
+docker compose up --build
+```
+
+Traefik will automatically obtain Let's Encrypt SSL certificates for all configured subdomains and handle HTTP to HTTPS redirects.
+
+### Service Access
+
 When deployed with a domain, services are accessible via:
 - Frontend: https://frontend.${MY_DOMAIN}
 - API Gateway: https://api.${MY_DOMAIN}
