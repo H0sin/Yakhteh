@@ -22,7 +22,7 @@ asyncpg.exceptions.DuplicateTableError: relation "patients" already exists
 
 ## Solution
 
-Modified all Alembic migration files to use `checkfirst=True` parameter when creating/dropping enum types, and added table existence checks for idempotent behavior. **Additionally, added `create_type=False` parameter to prevent automatic enum creation during table creation.**
+Modified all Alembic migration files to use the **same enum object** for both explicit creation and table column definition. **The key fix was ensuring enum object consistency to prevent duplicate creation attempts.**
 
 ### Before Fix
 ```python
@@ -56,8 +56,8 @@ def upgrade() -> None:
         op.create_table(
             'users',
             # ... other columns ...
-            # ✅ create_type=False prevents automatic enum creation
-            sa.Column('role', sa.Enum('doctor', 'clinic_admin', name='userrole', create_type=False), ...),
+            # ✅ Use the SAME enum object - prevents double creation
+            sa.Column('role', user_role_enum, nullable=False, server_default='doctor'),
         )
 
 def downgrade() -> None:
@@ -117,9 +117,21 @@ All migration files have been validated for:
 
 ## Technical Details
 
-The key insight is that SQLAlchemy's `Enum` type automatically creates the PostgreSQL enum type when a table is created, unless `create_type=False` is specified. This caused a double-creation issue:
+The key insight is that SQLAlchemy's `Enum` type automatically creates the PostgreSQL enum type when a table is created, unless `create_type=False` is specified. However, even with `create_type=False`, there was a secondary issue:
 
-1. First creation: Explicit `enum.create(checkfirst=True)` - works fine
-2. Second creation: Automatic creation during `op.create_table()` - fails with "already exists"
+**The Root Problem:**
+Migration files were using **two different enum objects** for the same PostgreSQL enum:
+1. `postgresql.ENUM()` object for explicit creation
+2. `sa.Enum()` object for table column definition
 
-The fix ensures enums are only created explicitly and never automatically during table creation.
+Even though both had `create_type=False`, SQLAlchemy treated them as different enum types and attempted to create the enum type again during table creation.
+
+**The Double-Creation Issue:**
+1. First creation: Explicit `postgresql_enum.create(checkfirst=True)` - works fine
+2. Second creation: Automatic creation during `op.create_table()` with `sa.Enum()` - fails with "already exists"
+
+**The Fix:**
+Use the **same enum object** throughout the migration:
+- Create the enum object once with `postgresql.ENUM()`
+- Reference that exact same object in the table column definition
+- This ensures only one enum creation attempt occurs
