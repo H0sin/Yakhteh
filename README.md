@@ -5,6 +5,7 @@ Multi-tenant medical platform for doctors and clinics in Iran. This monorepo use
 ## Services
 - auth_service: Authentication, JWT, user profiles
 - clinic_service: Clinic info, staff, subscriptions
+- frontend_service: React-based web interface for the platform
 
 ## Quickstart (Local)
 1. Fill in the .env file with your configuration.
@@ -16,6 +17,7 @@ docker compose up --build
 
 The entire platform, including the API server and background workers, is now running.
 - Auth service docs: http://localhost:8001/docs
+- Frontend interface: http://localhost (or your configured domain)
 
 ## Endpoints (initial)
 Auth
