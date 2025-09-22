@@ -102,6 +102,9 @@ venv.bak/
 *.log
 *.pid
 
+# Let's Encrypt certificates (contains sensitive data)
+data/letsencrypt/
+
 # Alembic
 alembic/versions/*.pyc
 
