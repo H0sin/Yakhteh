@@ -111,6 +111,18 @@ Clinics (requires Bearer token)
 - UUID primary keys
 - Alembic migrations per service
 - CORS open for local dev
+- **Automatic Database Migrations**: Each service automatically runs database migrations on startup to ensure schema consistency
+
+### Database Migration Behavior
+Each microservice (auth_service, clinic_service, etc.) automatically runs its database migrations when starting up:
+
+- **Idempotent**: Migrations can be run multiple times safely
+- **Logging**: Migration status is logged with timestamps for monitoring
+- **Health Checks**: Database connectivity is verified before attempting migrations
+- **Schema Verification**: Tables are verified to exist after migration completion
+- **Failure Handling**: Services will not start if migrations fail, ensuring data integrity
+
+This eliminates `UndefinedTableError` and similar database schema issues by ensuring all required tables exist before the service becomes available.
 
 ## Testing
 Run the auth_service tests against a local PostgreSQL.
