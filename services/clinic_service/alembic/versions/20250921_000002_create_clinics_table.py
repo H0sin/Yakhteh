@@ -34,7 +34,7 @@ def upgrade() -> None:
             sa.Column('name', sa.String(length=255), nullable=False),
             sa.Column('address', sa.String(length=500), nullable=True),
             sa.Column('owner_id', postgresql.UUID(as_uuid=True), nullable=False),
-            sa.Column('subscription_status', sa.Enum('free', 'premium', 'expired', name='subscriptionstatus', create_type=False), nullable=False, server_default='free'),
+            sa.Column('subscription_status', subscription_status_enum, nullable=False, server_default='free'),
         )
         op.create_index('ix_clinics_name', 'clinics', ['name'])
         op.create_index('ix_clinics_owner_id', 'clinics', ['owner_id'])
