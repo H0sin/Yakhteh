@@ -19,7 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     # Create enum type if it doesn't exist
-    appointment_status_enum = postgresql.ENUM('SCHEDULED', 'COMPLETED', 'CANCELLED', 'NO_SHOW', name='appointmentstatus')
+    appointment_status_enum = postgresql.ENUM('SCHEDULED', 'COMPLETED', 'CANCELLED', 'NO_SHOW', name='appointmentstatus', create_type=False)
     appointment_status_enum.create(op.get_bind(), checkfirst=True)
     
     # Get connection and check for existing tables
@@ -38,7 +38,7 @@ def upgrade() -> None:
             sa.Column('clinic_id', postgresql.UUID(as_uuid=True), nullable=False),
             sa.Column('start_time', sa.DateTime(timezone=True), nullable=False),
             sa.Column('end_time', sa.DateTime(timezone=True), nullable=False),
-            sa.Column('status', sa.Enum('SCHEDULED', 'COMPLETED', 'CANCELLED', 'NO_SHOW', name='appointmentstatus'), nullable=False, server_default='SCHEDULED'),
+            sa.Column('status', sa.Enum('SCHEDULED', 'COMPLETED', 'CANCELLED', 'NO_SHOW', name='appointmentstatus', create_type=False), nullable=False, server_default='SCHEDULED'),
             sa.Column('notes', sa.Text(), nullable=True),
             sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         )
