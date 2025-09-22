@@ -19,7 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     # Create enum type if it doesn't exist
-    user_role_enum = postgresql.ENUM('doctor', 'clinic_admin', name='userrole')
+    user_role_enum = postgresql.ENUM('doctor', 'clinic_admin', name='userrole', create_type=False)
     user_role_enum.create(op.get_bind(), checkfirst=True)
     
     # Get connection and check for existing tables
@@ -35,7 +35,7 @@ def upgrade() -> None:
             sa.Column('email', sa.String(length=255), nullable=False),
             sa.Column('hashed_password', sa.String(length=255), nullable=False),
             sa.Column('full_name', sa.String(length=255), nullable=True),
-            sa.Column('role', sa.Enum('doctor', 'clinic_admin', name='userrole'), nullable=False, server_default='doctor'),
+            sa.Column('role', sa.Enum('doctor', 'clinic_admin', name='userrole', create_type=False), nullable=False, server_default='doctor'),
             sa.Column('is_active', sa.Boolean(), nullable=False, server_default=sa.true()),
             sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
             sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
