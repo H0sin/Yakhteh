@@ -1,23 +1,53 @@
 # Yakhteh (یخچه)
 
-Multi-tenant medical platform for doctors and clinics in Iran. This monorepo uses a microservices architecture with Python (FastAPI), PostgreSQL, Redis, and Docker.
+Multi-tenant medical platform for doctors and clinics in Iran. This repository uses a microservices architecture with Python (FastAPI), React (Vite), PostgreSQL, Redis, and Docker.
 
-## Services
-- auth_service: Authentication, JWT, user profiles
-- clinic_service: Clinic info, staff, subscriptions
-- frontend_service: React-based web interface for the platform
+## Architecture
 
-## Quickstart (Local)
-1. Fill in the .env file with your configuration.
-2. Run the platform:
+This platform follows a microservices architecture where each service is containerized and communicates through API calls:
+
+### Services
+- **auth_service**: Authentication, JWT tokens, user management
+- **clinic_service**: Clinic information, staff management, subscriptions
+- **membership_service**: Membership processing (background worker)
+- **scheduling_service**: Appointment scheduling and calendar management
+- **pacs_service**: Medical imaging and PACS integration
+- **frontend_service**: React-based web interface (Vite + TypeScript)
+
+### Infrastructure
+- **PostgreSQL**: Primary database for all services
+- **Redis**: Caching and session management
+- **MinIO**: Object storage for files and medical images
+- **Traefik**: Reverse proxy and SSL termination
+
+## Quickstart (Local Development)
+
+1. Copy the example environment file and configure it:
+```bash
+cp .env.example .env
+# Edit .env with your preferred settings
+```
+
+2. Start the entire platform:
 
 ```bash
 docker compose up --build
 ```
 
-The entire platform, including the API server and background workers, is now running.
-- Auth service docs: http://localhost:8001/docs
-- Frontend interface: http://localhost (or your configured domain)
+### Local Access
+- Frontend interface: http://localhost:3000 (development) or http://localhost (production build)
+- Auth service API docs: http://localhost:8001/docs
+- Other services are accessible through the auth service or via internal networking
+
+## Production Deployment
+
+When deployed with a domain, services are accessible via:
+- Frontend: https://frontend.${MY_DOMAIN}
+- API Gateway: https://api.${MY_DOMAIN}
+- Traefik Dashboard: https://traefik.${MY_DOMAIN}
+- MinIO Console: https://minio.${MY_DOMAIN}
+
+Set the `MY_DOMAIN` environment variable in your `.env` file for proper Traefik routing.
 
 ## Endpoints (initial)
 Auth

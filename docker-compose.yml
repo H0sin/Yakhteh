@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   traefik:
     image: "traefik:v3.0"
@@ -203,7 +201,7 @@ services:
       - yakhteh_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`${MY_DOMAIN}`)"
+      - "traefik.http.routers.frontend.rule=Host(`frontend.${MY_DOMAIN}`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"

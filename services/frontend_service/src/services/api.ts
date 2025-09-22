@@ -1,7 +1,19 @@
 import axios from "axios";
 
+// Use production API base URL when deployed, localhost for development
+const getApiBaseUrl = () => {
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return "http://localhost:8001/api/v1";
+  }
+  // In production, services are accessible via api.${MY_DOMAIN} with HTTPS
+  // Extract base domain from frontend.domain.com -> domain.com
+  const hostname = window.location.hostname;
+  const domain = hostname.startsWith('frontend.') ? hostname.substring(9) : hostname;
+  return `https://api.${domain}/api/v1`;
+};
+
 const apiClient = axios.create({
-  baseURL: "http://localhost:8001/api/v1",
+  baseURL: getApiBaseUrl(),
   timeout: 5000,
 });
 
